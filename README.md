@@ -55,3 +55,48 @@ In terminal, type:
 
  
 
+_________________________________________________________________________
+
+# For Detection basic setup in new VM
+0. To install Wazuh-manager
+	sudo apt update
+	sudo apt install -y curl gnupg apt-transport-https
+	curl -fsSL https://packages.wazuh.com/key/GPG-KEY-WAZUH | sudo gpg --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import
+	sudo chmod 644 /usr/share/keyrings/wazuh.gpg
+	echo "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main" | sudo tee /etc/apt/sources.list.d/wazuh.list
+	sudo apt update
+	sudo apt install -y wazuh-manager
+	sudo systemctl daemon-reload
+	sudo systemctl enable --now wazuh-manager
+
+1. Create alert file
+   	sudo touch /var/log/csrf-alerts.txt
+	sudo chown www-data:www-data /var/log/csrf-alerts.txt
+	sudo chmod 640 /var/log/csrf-alerts.txt
+
+2. Tell Wazuh to collect the file
+   	sudo nano /var/ossec/etc/ossec.conf
+	**Add the following lines in the conf file at the end before </ossec_config>:
+   	<localfile>
+  		<location>/var/log/csrf-alerts.txt</location>
+  		<log_format>json</log_format>
+	</localfile>
+
+3. Add Wazuh alert rule
+	sudo nano /var/ossec/etc/rules/local_rules.xml
+	**Add the following at the end
+    <group name="blog,csrf,">
+  		<rule id="100100" level="7">
+    		<decoded_as>json</decoded_as>
+    		<field name="alert" type="pcre2">^POSSIBLE CSRF$</field>
+    		<description>Possible CSRF: email update through URL</description>
+ 		</rule>
+	</group>
+	**Then restart the wazuh-manager
+   	sudo systemctl restart wazuh-manager
+   	
+4. Watch alerts as the admin
+   	sudo tail -f /var/ossec/logs/alerts/alerts.log
+
+5. Alert Log can be accessed in:
+   	/var/ossec/logs/alerts/alerts.log
