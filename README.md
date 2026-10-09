@@ -1,7 +1,7 @@
 CSRF DEMO - HOW TO RUN THIS PROJECT!!!
 
 
-# Prequisites check ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Prequisites check 
 Before running the program make sure you have Apache and mysql installed
 If not, type in the terminal:
 	sudo apt update
@@ -22,38 +22,71 @@ To setup the initial database in SQL:
 	EXIT;
 
 
-# Loading the Website ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Loading the Website 
 
-To make things simple place the files "update.php" and "index.php" in your downloads folder.
+To make things simple place all files (index.php, login.php, profile.php and update.php) in your downloads folder.
 In terminal, type:
 	sudo mkdir /var/www/html/csrf_demo
 	sudo cp -r /home/"YOURUSERNAME"/Downloads/* /var/www/html/csrf_demo/
 
 Server has been initiated now you can proceed.
 In your browser, type:
-	http://localhost/csrf_demo/update.php
+	http://localhost/csrf_demo/login.php
 
-You should see "Request to change email address" followed by the input fields.
-IF you see "Error! 1051" at the top of the page. Reload the page and it should disappear (just means the tables haven't loaded in the index).
+You should see a login page with a username and password input field.
+URL is http://localhost/csrf_demo/index.php
+Login details for the two users are as followed:
 
-Now in the browser, type:
-	http://localhost/csrf_demo/index.php
-	
-You should see a table of account details (User ID, Username and Email).
+Username: Tidus
+Password: 1234
 
-User ID    Username    Email
-1234       Tidus       tidus@example.com
-2222       Yuna        yuna@example.com
-....       ....        ....
+Username: Yuna
+Password: 1234
 
-# IN CASE OF ANY ERRORS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+If you'd like to create your own account you may do so by clicking the register button.
+Then fill in the username and password details.
+
+After a successful login, you should be able to see a blog page showing cat images with a comments section below.
+You can add a comment by writing in the input field. This is where the stored CSRF attack will take place.
+
+On the top left of the blog page there should be a profile button with a small profile picture.
+Clicking on it will lead you to the profile page in http://localhost/CSRF_demo/profile.php
+There you should see the profile information of the logged in user as shown below:
+
+My profile
+
+Username    .....
+Email       ..............
+User ID     ....
+
+Change email address
+................
+
+Change email
+Go to blog      Logout
+
+# Creating the stored CSRF attack
+
+In your browser, type:
+	http://localhost/csrf_demo/login.php
+
+Log in with any user (Tidus 1234 or Yuna 1234).
+
+Go to profile on the top right and check email details (should see tidus@example.com or yuna@example.com)
+
+In the blog page place in the comments:
+<img src="http://localhost/csrf_demo/update.php/?user_id=1234&new_email=New@New.com">
+This is a stored CSRF attack placed within an image field.
+
+Go back to the profile page and you should see the email has changed to New@New.com.
+The attacker has successfully changed your email.
+
+# IN CASE OF ANY ERRORS 
 
 If you see a blank page or "403 Forbidden" when loading the website.
 In terminal, type:
 	sudo chown -R www-data:www-data /var/www/html/csrf_demo
 	sudo chown -R 755 /var/www/html/csrf_demo
-
- 
 
 _________________________________________________________________________
 
